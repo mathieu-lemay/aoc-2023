@@ -1,0 +1,9 @@
+[package]
+name = "day16"
+version = "0.1.0"
+authors = ["Mathieu Lemay <acidrain1@gmail.com>"]
+edition = "2021"
+
+[dependencies]
+aoc-common = { path = "../aoc-common" }
+itertools = "0.12.0"
