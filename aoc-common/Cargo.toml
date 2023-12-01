@@ -5,3 +5,5 @@ authors = ["Mathieu Lemay <acidrain1@gmail.com>"]
 edition = "2021"
 
 [dependencies]
+itertools = "0.12.0"
+textwrap = "0.16.0"
