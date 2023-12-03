@@ -52,10 +52,22 @@ pub fn parse_input(input: &str) -> Vec<String> {
         .collect_vec()
 }
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Point {
-    pub x: usize,
-    pub y: usize,
+#[derive(Debug, Copy, Clone, Hash, Eq, PartialEq)]
+pub struct Point<T>
+where
+    T: Clone + Copy,
+{
+    pub x: T,
+    pub y: T,
+}
+
+impl<T> Point<T>
+where
+    T: Clone + Copy,
+{
+    pub fn new(x: T, y: T) -> Self {
+        Self { x, y }
+    }
 }
 
 #[cfg(test)]
