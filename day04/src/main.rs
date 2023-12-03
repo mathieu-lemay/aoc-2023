@@ -3,10 +3,6 @@ use std::time::Instant;
 
 use aoc_common::get_input;
 
-fn solve(_input: &[String]) -> (impl Display, impl Display) {
-    (0, 0)
-}
-
 fn main() {
     let input = get_input("day04.txt");
 
@@ -19,6 +15,13 @@ fn main() {
     println!("Part 1: {}", r1);
     println!("Part 2: {}", r2);
     println!("Duration: {:.3}μs", t);
+}
+
+fn solve(_input: &[String]) -> (impl Display, impl Display) {
+    let p1 = 0;
+    let p2 = 0;
+
+    (p1, p2)
 }
 
 #[cfg(test)]
