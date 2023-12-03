@@ -36,10 +36,9 @@ struct EnginePart {
 
 impl EnginePart {
     fn is_adjacent_to(&self, symbol: &Symbol) -> bool {
-        let y = self.position.0.y;
-
-        (self.position.0.x..=self.position.1.x)
-            .any(|x| symbol.position.x.abs_diff(x) <= 1 && symbol.position.y.abs_diff(y) <= 1)
+        symbol.position.y.abs_diff(self.position.0.y) <= 1
+            && symbol.position.x + 1 >= self.position.0.x
+            && symbol.position.x <= self.position.1.x + 1
     }
 }
 
