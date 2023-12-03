@@ -20,3 +20,48 @@ fn main() {
     println!("Part 2: {}", r2);
     println!("Duration: {:.3}μs", t);
 }
+#[cfg(test)]
+mod tests {
+    use aoc_common::parse_test_input;
+    use rstest::{fixture, rstest};
+
+    use super::*;
+
+    #[fixture]
+    fn test_input() -> Vec<String> {
+        parse_test_input("")
+    }
+
+    #[fixture]
+    fn puzzle_input() -> Vec<String> {
+        get_input("day09.txt")
+    }
+
+    #[rstest]
+    fn test_p1(test_input: Vec<String>) {
+        let res = 0;
+
+        assert_eq!(res, 1);
+    }
+
+    #[rstest]
+    fn test_p1_full_input(puzzle_input: Vec<String>) {
+        let res = 0;
+
+        assert_eq!(res, 1);
+    }
+
+    #[rstest]
+    fn test_p2(test_input: Vec<String>) {
+        let res = 0;
+
+        assert_eq!(res, 1);
+    }
+
+    #[rstest]
+    fn test_p2_full_input(puzzle_input: Vec<String>) {
+        let res = 0;
+
+        assert_eq!(res, 1);
+    }
+}

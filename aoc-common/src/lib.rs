@@ -44,7 +44,7 @@ where
 /// Parse a puzzle's input data provided as a multi line string. The input is dedented first, then
 /// the first and last lines are removed if they are empty.
 /// This is useful for providing test input as a string.
-pub fn parse_input(input: &str) -> Vec<String> {
+pub fn parse_test_input(input: &str) -> Vec<String> {
     dedent(input)
         .trim()
         .split('\n')
@@ -81,7 +81,7 @@ mod tests {
 foobar";
 
         let expected = vec!["abc", "123", "foobar"];
-        assert_eq!(expected, parse_input(input));
+        assert_eq!(expected, parse_test_input(input));
     }
     #[test]
     fn test_parse_input_dedents_input() {
@@ -93,7 +93,7 @@ foobar";
 
         let expected = vec!["abc", "123", "foobar"];
 
-        assert_eq!(expected, parse_input(input));
+        assert_eq!(expected, parse_test_input(input));
     }
 
     #[test]
@@ -108,6 +108,6 @@ foobar";
 
         let expected = vec!["abc", "123", "", "foobar"];
 
-        assert_eq!(expected, parse_input(input));
+        assert_eq!(expected, parse_test_input(input));
     }
 }

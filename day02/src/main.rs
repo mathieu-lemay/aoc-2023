@@ -107,13 +107,32 @@ fn get_power_of_sets(games: &[Game]) -> Vec<u32> {
 
 #[cfg(test)]
 mod tests {
-    use aoc_common::parse_input;
+    use aoc_common::parse_test_input;
+    use rstest::*;
 
     use super::*;
 
-    #[test]
+    #[fixture]
+    fn test_input() -> Vec<String> {
+        parse_test_input(
+            "
+            Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+            Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+            Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
+            Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
+            Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
+            ",
+        )
+    }
+
+    #[fixture]
+    fn puzzle_input() -> Vec<String> {
+        get_input("day02.txt")
+    }
+
+    #[rstest]
     fn test_parse_games() {
-        let input = parse_input(
+        let input = parse_test_input(
             "
             Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
             Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
@@ -189,58 +208,34 @@ mod tests {
         );
     }
 
-    #[test]
-    fn test_p1() {
-        let input = parse_input(
-            "
-            Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
-            Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
-            Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
-            Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
-            Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
-            ",
-        );
-
-        let games = parse_games(&input);
+    #[rstest]
+    fn test_p1(test_input: Vec<String>) {
+        let games = parse_games(&test_input);
         let res: u32 = get_possible_games(&games, 12, 13, 14).iter().sum();
 
         assert_eq!(res, 8);
     }
 
-    #[test]
-    fn test_p1_full_input() {
-        let input = get_input("day02.txt");
-
-        let games = parse_games(&input);
+    #[rstest]
+    fn test_p1_full_input(puzzle_input: Vec<String>) {
+        let games = parse_games(&puzzle_input);
         let res: u32 = get_possible_games(&games, 12, 13, 14).iter().sum();
 
         assert_eq!(res, 2617);
     }
 
-    #[test]
-    fn test_p2() {
-        let input = parse_input(
-            "
-            Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
-            Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
-            Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
-            Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
-            Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
-            ",
-        );
-
-        let games = parse_games(&input);
+    #[rstest]
+    fn test_p2(test_input: Vec<String>) {
+        let games = parse_games(&test_input);
         let res = get_power_of_sets(&games);
 
         assert_eq!(res, vec![48, 12, 1560, 630, 36]);
         assert_eq!(res.iter().sum::<u32>(), 2286);
     }
 
-    #[test]
-    fn test_p2_full_input() {
-        let input = get_input("day02.txt");
-
-        let games = parse_games(&input);
+    #[rstest]
+    fn test_p2_full_input(puzzle_input: Vec<String>) {
+        let games = parse_games(&puzzle_input);
         let res = get_power_of_sets(&games);
 
         assert_eq!(res.iter().sum::<u32>(), 59795);

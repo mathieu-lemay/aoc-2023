@@ -131,13 +131,14 @@ fn parse_board(input: &[String]) -> Board {
 
 #[cfg(test)]
 mod tests {
-    use aoc_common::parse_input;
+    use aoc_common::parse_test_input;
+    use rstest::{fixture, rstest};
 
     use super::*;
 
-    #[test]
-    fn test_parse_board() {
-        let input = parse_input(
+    #[fixture]
+    fn test_input() -> Vec<String> {
+        parse_test_input(
             "
             467..114..
             ...*......
@@ -150,9 +151,17 @@ mod tests {
             ...$.*....
             .664.598..
             ",
-        );
+        )
+    }
 
-        let board = parse_board(&input);
+    #[fixture]
+    fn puzzle_input() -> Vec<String> {
+        get_input("day03.txt")
+    }
+
+    #[rstest]
+    fn test_parse_board(test_input: Vec<String>) {
+        let board = parse_board(&test_input);
 
         let expected = Board {
             parts: vec![
@@ -228,24 +237,9 @@ mod tests {
         assert_eq!(board, expected);
     }
 
-    #[test]
-    fn test_get_valid_parts() {
-        let input = parse_input(
-            "
-            467..114..
-            ...*......
-            ..35..633.
-            ......#...
-            617*......
-            .....+.58.
-            ..592.....
-            ......755.
-            ...$.*....
-            .664.598..
-            ",
-        );
-
-        let board = parse_board(&input);
+    #[rstest]
+    fn test_get_valid_parts(test_input: Vec<String>) {
+        let board = parse_board(&test_input);
         let valid = board.get_valid_parts();
 
         let expected = vec![
@@ -286,88 +280,39 @@ mod tests {
         assert_eq!(valid, expected);
     }
 
-    #[test]
-    fn test_get_gear_ratios() {
-        let input = parse_input(
-            "
-            467..114..
-            ...*......
-            ..35..633.
-            ......#...
-            617*......
-            .....+.58.
-            ..592.....
-            ......755.
-            ...$.*....
-            .664.598..
-            ",
-        );
-
-        let board = parse_board(&input);
+    #[rstest]
+    fn test_get_gear_ratios(test_input: Vec<String>) {
+        let board = parse_board(&test_input);
         assert_eq!(board.get_gear_ratios(), vec![16345, 451490]);
     }
 
-    #[test]
-    fn test_p1() {
-        let input = parse_input(
-            "
-            467..114..
-            ...*......
-            ..35..633.
-            ......#...
-            617*......
-            .....+.58.
-            ..592.....
-            ......755.
-            ...$.*....
-            .664.598..
-            ",
-        );
-
-        let board = parse_board(&input);
+    #[rstest]
+    fn test_p1(test_input: Vec<String>) {
+        let board = parse_board(&test_input);
         let res = board.get_sum_of_valid_parts();
 
         assert_eq!(res, 4361);
     }
 
-    #[test]
-    fn test_p1_full_input() {
-        let input = get_input("day03.txt");
-
-        let board = parse_board(&input);
+    #[rstest]
+    fn test_p1_full_input(puzzle_input: Vec<String>) {
+        let board = parse_board(&puzzle_input);
         let res = board.get_sum_of_valid_parts();
 
         assert_eq!(res, 535351);
     }
 
-    #[test]
-    fn test_p2() {
-        let input = parse_input(
-            "
-            467..114..
-            ...*......
-            ..35..633.
-            ......#...
-            617*......
-            .....+.58.
-            ..592.....
-            ......755.
-            ...$.*....
-            .664.598..
-            ",
-        );
-
-        let board = parse_board(&input);
+    #[rstest]
+    fn test_p2(test_input: Vec<String>) {
+        let board = parse_board(&test_input);
         let res = board.get_sum_of_gear_ratios();
 
         assert_eq!(res, 467835);
     }
 
-    #[test]
-    fn test_p2_full_input() {
-        let input = get_input("day03.txt");
-
-        let board = parse_board(&input);
+    #[rstest]
+    fn test_p2_full_input(puzzle_input: Vec<String>) {
+        let board = parse_board(&puzzle_input);
         let res = board.get_sum_of_gear_ratios();
 
         assert_eq!(res, 87287096);

@@ -132,13 +132,13 @@ fn get_calibration_value(entries: &[(u32, u32)]) -> u32 {
 
 #[cfg(test)]
 mod tests {
-    use aoc_common::parse_input;
+    use aoc_common::parse_test_input;
 
     use super::*;
 
     #[test]
     fn test_p1() {
-        let input = parse_input(
+        let input = parse_test_input(
             "
             1abc2
             pqr3stu8vwx
@@ -155,7 +155,7 @@ mod tests {
 
     #[test]
     fn test_p2() {
-        let input = parse_input(
+        let input = parse_test_input(
             "
             two1nine
             eightwothree
