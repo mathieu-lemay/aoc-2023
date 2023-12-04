@@ -1,13 +1,16 @@
 set dotenv-load := true
 
 run day='':
-    cargo run --bin day"$(just _day {{ day }})"
+    cargo run --bin "day$(just _day {{ day }})"
 
 bench day='':
-    cargo run --release --bin day"$(just _day {{ day }})"
+    cargo run --release --bin "day$(just _day {{ day }})"
 
 test day='':
-    RUST_BACKTRACE=1 cargo test --bin day"$(just _day {{ day }})"
+    RUST_BACKTRACE=1 cargo test --bin "day$(just _day {{ day }})"
+
+watch day='':
+    RUST_BACKTRACE=1 cargo watch -s "cargo test --bin \"day$(just _day {{ day }})\""
 
 prepare day='':
     #! /bin/sh
