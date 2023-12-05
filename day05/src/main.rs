@@ -12,30 +12,65 @@ fn main() {
 
     let (r1, r2) = solve(input.as_slice());
 
-    let t = start.elapsed().as_nanos() as f64 / 1000.0;
+    let t = start.elapsed().as_micros() as f64 / 1000.0;
 
     println!("Part 1: {}", r1);
     println!("Part 2: {}", r2);
-    println!("Duration: {:.3}μs", t);
+    println!("Duration: {:.3}ms", t);
 }
 
 fn solve(input: &[String]) -> (impl Display, impl Display) {
-    let plan = parse_plan(input);
+    let mut plan = parse_plan(input);
 
     let p1 = plan.get_lowest_seed_location();
-    let p2 = 0;
+    plan.add_implicit_mappings();
+    let p2 = plan.get_lowest_seed_location_from_range();
 
     (p1, p2)
 }
 
 #[derive(Debug, Default, Eq, PartialEq)]
 struct PlantingPlan {
-    pub seeds: Vec<u32>,
-    pub maps: HashMap<Category, Map>,
+    pub seeds: Vec<i64>,
+    pub maps: HashMap<Category, ConversionMap>,
 }
 
 impl PlantingPlan {
-    fn get_location_for_seed(&self, seed: u32) -> u32 {
+    fn add_implicit_mappings(&mut self) {
+        for map in self.maps.values_mut() {
+            let mut range_starts: Vec<i64> = vec![0i64, (u32::MAX) as i64];
+            range_starts.extend(map.mappings.iter().map(|m| m.src_start));
+            range_starts.extend(map.mappings.iter().map(|m| m.src_start + m.length));
+
+            range_starts.sort();
+
+            let new_mappings = range_starts
+                .iter()
+                .tuple_windows()
+                .map(|(&start, end)| {
+                    if let Some(m) = map.mappings.iter().find(|m| m.src_start == start) {
+                        *m
+                    } else {
+                        Mapping {
+                            src_start: start,
+                            dst_start: start,
+                            length: end - start,
+                        }
+                    }
+                })
+                .collect();
+
+            map.mappings = new_mappings;
+        }
+    }
+}
+
+impl PlantingPlan {
+    fn get_conversion_map_by_dst(&self, dst: &Category) -> Option<&ConversionMap> {
+        self.maps.values().find(|m| &m.dst == dst)
+    }
+
+    fn get_location_for_seed(&self, seed: i64) -> i64 {
         let mut map = self.maps.get(&Category::Seed).unwrap();
         let mut location = map.get_dst_value(seed);
 
@@ -47,10 +82,62 @@ impl PlantingPlan {
         location
     }
 
-    fn get_lowest_seed_location(&self) -> u32 {
+    fn get_lowest_seed_location(&self) -> i64 {
         self.seeds
             .iter()
             .map(|&s| self.get_location_for_seed(s))
+            .min()
+            .unwrap()
+    }
+
+    fn get_lowest_seed_location_from_range(&self) -> i64 {
+        let mut conversion_map = self.get_conversion_map_by_dst(&Category::Location).unwrap();
+        let mut mappings: Vec<Mapping> = conversion_map
+            .mappings
+            .iter()
+            .sorted_by_key(|m| m.src_start)
+            .cloned()
+            .collect();
+
+        loop {
+            let m = self.get_conversion_map_by_dst(&conversion_map.src);
+            if m.is_none() {
+                break;
+            }
+
+            conversion_map = m.unwrap();
+            mappings = conversion_map
+                .mappings
+                .iter()
+                .cartesian_product(&mappings)
+                .flat_map(|(m1, m2)| m1.intersection(m2))
+                .sorted_by_key(|m| m.src_start)
+                .dedup()
+                .collect();
+        }
+
+        let seed_ranges: Vec<Range> = self
+            .seeds
+            .chunks(2)
+            .map(|c| Range {
+                start: c[0],
+                end: c[0] + c[1],
+            })
+            .collect();
+
+        let candidates = mappings
+            .iter()
+            .map(|m| Range {
+                start: m.src_start,
+                end: m.src_start + m.length,
+            })
+            .cartesian_product(seed_ranges)
+            .filter_map(|(r1, r2)| r1.intersection(&r2).map(|r| r.start));
+
+        candidates
+            .sorted()
+            .dedup()
+            .map(|s| self.get_location_for_seed(s))
             .min()
             .unwrap()
     }
@@ -87,14 +174,14 @@ impl TryFrom<&str> for Category {
 }
 
 #[derive(Debug, Eq, PartialEq)]
-struct Map {
+struct ConversionMap {
     src: Category,
     dst: Category,
     mappings: Vec<Mapping>,
 }
 
-impl Map {
-    fn get_dst_value(&self, src_value: u32) -> u32 {
+impl ConversionMap {
+    fn get_dst_value(&self, src_value: i64) -> i64 {
         self.mappings
             .iter()
             .filter_map(|m| m.get_dst_value(src_value))
@@ -103,15 +190,15 @@ impl Map {
     }
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 struct Mapping {
-    dst_start: u32,
-    src_start: u32,
-    length: u32,
+    dst_start: i64,
+    src_start: i64,
+    length: i64,
 }
 
 impl Mapping {
-    fn get_dst_value(&self, src_value: u32) -> Option<u32> {
+    fn get_dst_value(&self, src_value: i64) -> Option<i64> {
         if src_value < self.src_start {
             return None;
         }
@@ -120,6 +207,69 @@ impl Mapping {
 
         if distance < self.length {
             Some(self.dst_start + distance)
+        } else {
+            None
+        }
+    }
+
+    fn intersection(&self, other: &Mapping) -> Vec<Mapping> {
+        let self_dst_range = Range {
+            start: self.dst_start,
+            end: self.dst_start + self.length,
+        };
+        let other_src_range = Range {
+            start: other.src_start,
+            end: other.src_start + other.length,
+        };
+
+        let range_ixn = self_dst_range.intersection(&other_src_range);
+        if range_ixn.is_none() {
+            return vec![];
+        }
+
+        let range_ixn = range_ixn.unwrap();
+        let offset = self.dst_start - self.src_start;
+
+        [
+            Mapping {
+                src_start: self.src_start,
+                dst_start: self.dst_start,
+                length: range_ixn.start - self.dst_start,
+            },
+            Mapping {
+                src_start: range_ixn.start - offset,
+                dst_start: range_ixn.start,
+                length: range_ixn.length(),
+            },
+            Mapping {
+                src_start: range_ixn.end - offset,
+                dst_start: range_ixn.end,
+                length: self.length - range_ixn.length() - (range_ixn.start - self.dst_start),
+            },
+        ]
+        .into_iter()
+        .filter(|&m| m.length > 0)
+        .collect()
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+struct Range {
+    start: i64,
+    end: i64,
+}
+
+impl Range {
+    fn length(&self) -> i64 {
+        self.end - self.start
+    }
+
+    fn intersection(&self, other: &Range) -> Option<Range> {
+        let start = self.start.max(other.start);
+        let end = self.end.min(other.end);
+
+        if start < end {
+            Some(Range { start, end })
         } else {
             None
         }
@@ -169,7 +319,9 @@ fn parse_plan(input: &[String]) -> PlantingPlan {
             })
         }
 
-        maps.insert(src.clone(), Map { src, dst, mappings });
+        // mappings.sort_by_key(|m| m.dst_start);
+
+        maps.insert(src.clone(), ConversionMap { src, dst, mappings });
     }
 
     PlantingPlan { seeds, maps }
@@ -234,7 +386,7 @@ mod tests {
         let maps = HashMap::from([
             (
                 Category::Seed,
-                Map {
+                ConversionMap {
                     src: Category::Seed,
                     dst: Category::Soil,
                     mappings: vec![
@@ -253,7 +405,7 @@ mod tests {
             ),
             (
                 Category::Soil,
-                Map {
+                ConversionMap {
                     src: Category::Soil,
                     dst: Category::Fertilizer,
                     mappings: vec![
@@ -277,7 +429,7 @@ mod tests {
             ),
             (
                 Category::Fertilizer,
-                Map {
+                ConversionMap {
                     src: Category::Fertilizer,
                     dst: Category::Water,
                     mappings: vec![
@@ -306,7 +458,7 @@ mod tests {
             ),
             (
                 Category::Water,
-                Map {
+                ConversionMap {
                     src: Category::Water,
                     dst: Category::Light,
                     mappings: vec![
@@ -325,7 +477,7 @@ mod tests {
             ),
             (
                 Category::Light,
-                Map {
+                ConversionMap {
                     src: Category::Light,
                     dst: Category::Temperature,
                     mappings: vec![
@@ -349,7 +501,7 @@ mod tests {
             ),
             (
                 Category::Temperature,
-                Map {
+                ConversionMap {
                     src: Category::Temperature,
                     dst: Category::Humidity,
                     mappings: vec![
@@ -368,7 +520,7 @@ mod tests {
             ),
             (
                 Category::Humidity,
-                Map {
+                ConversionMap {
                     src: Category::Humidity,
                     dst: Category::Location,
                     mappings: vec![
@@ -403,7 +555,7 @@ mod tests {
     #[case(98, 50)]
     #[case(99, 51)]
     #[case(100, 100)]
-    fn test_map_get_dst_value(test_input: Vec<String>, #[case] input: u32, #[case] expected: u32) {
+    fn test_map_get_dst_value(test_input: Vec<String>, #[case] input: i64, #[case] expected: i64) {
         let plan = parse_plan(&test_input);
         let map = plan.maps.get(&Category::Seed).unwrap();
 
@@ -417,8 +569,8 @@ mod tests {
     #[case(13, 35)]
     fn test_get_location_for_seed(
         test_input: Vec<String>,
-        #[case] input: u32,
-        #[case] expected: u32,
+        #[case] input: i64,
+        #[case] expected: i64,
     ) {
         let plan = parse_plan(&test_input);
 
@@ -441,15 +593,17 @@ mod tests {
 
     #[rstest]
     fn test_p2(test_input: Vec<String>) {
-        let res = 0;
+        let mut plan = parse_plan(&test_input);
+        plan.add_implicit_mappings();
 
-        assert_eq!(res, 1);
+        assert_eq!(plan.get_lowest_seed_location_from_range(), 46);
     }
 
     #[rstest]
     fn test_p2_full_input(puzzle_input: Vec<String>) {
-        let res = 0;
+        let mut plan = parse_plan(&puzzle_input);
+        plan.add_implicit_mappings();
 
-        assert_eq!(res, 1);
+        assert_eq!(plan.get_lowest_seed_location_from_range(), 46294175);
     }
 }
