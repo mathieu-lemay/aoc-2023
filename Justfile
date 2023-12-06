@@ -10,7 +10,7 @@ test day='':
     RUST_BACKTRACE=1 cargo test --bin "day$(just _day {{ day }})"
 
 watch day='':
-    RUST_BACKTRACE=1 cargo watch -s "cargo test --bin \"day$(just _day {{ day }})\""
+    cargo watch -s "cargo test --bin \"day$(just _day {{ day }})\""
 
 prepare day='':
     #! /bin/sh
