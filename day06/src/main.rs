@@ -35,10 +35,14 @@ struct Race {
 }
 
 impl Race {
-    fn get_number_of_winning_strategies(&self) -> usize {
-        (0..=self.time)
-            .filter(|t| t * (self.time - t) > self.record)
-            .count()
+    fn get_number_of_winning_strategies(&self) -> u64 {
+        let a = -1 as f64;
+        let b = self.time as f64;
+        let c = -1f64 * self.record as f64;
+
+        let x = (((-1f64 * b) + f64::sqrt(b * b - 4f64*a*c)) / (2f64 * a)).floor() as u64 + 1;
+
+        self.time - (x * 2) + 1
     }
 }
 
@@ -76,7 +80,7 @@ fn parse_race(input: &[String]) -> Race {
     Race { time, record }
 }
 
-fn get_error_margin(races: &[Race]) -> usize {
+fn get_error_margin(races: &[Race]) -> u64 {
     races
         .iter()
         .map(|r| r.get_number_of_winning_strategies())
