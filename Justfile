@@ -24,6 +24,7 @@ prepare day='':
 
     curl --fail --cookie "session=${SESSION_COOKIE:?Session cookie unavailable}" "https://adventofcode.com/2023/day/$((10#${day}))/input" > "input/${filename}.txt"
     git add "input/${filename}.txt"
+    git ci -m "Day ${day}"
 
 @_day day='':
     if [ -n "{{ day }}" ]; then \
