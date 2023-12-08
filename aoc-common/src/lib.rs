@@ -1,5 +1,4 @@
 use itertools::Itertools;
-use std::env;
 use std::fmt::Debug;
 use std::fs::{read_to_string, File};
 use std::io::{BufRead, BufReader};
@@ -41,6 +40,16 @@ where
         .collect()
 }
 
+pub fn format_duration(nanos: u128) -> String {
+    let elapsed = nanos as f64 / 1000.0;
+
+    if elapsed > 1000.0 {
+        format!("{:.03}ms", elapsed / 1000.0)
+    } else {
+        format!("{:.03}μs", elapsed)
+    }
+}
+
 /// Parse a puzzle's input data provided as a multi line string. The input is dedented first, then
 /// the first and last lines are removed if they are empty.
 /// This is useful for providing test input as a string.
@@ -72,9 +81,11 @@ where
 
 #[cfg(test)]
 mod tests {
+    use rstest::rstest;
+
     use super::*;
 
-    #[test]
+    #[rstest]
     fn test_parse_input() {
         let input = "abc
 123
@@ -83,7 +94,7 @@ foobar";
         let expected = vec!["abc", "123", "foobar"];
         assert_eq!(expected, parse_test_input(input));
     }
-    #[test]
+    #[rstest]
     fn test_parse_input_dedents_input() {
         let input = "
             abc
@@ -96,7 +107,7 @@ foobar";
         assert_eq!(expected, parse_test_input(input));
     }
 
-    #[test]
+    #[rstest]
     fn test_parse_input_removes_empty_lines_at_start_and_end() {
         let input = "
 
@@ -109,5 +120,16 @@ foobar";
         let expected = vec!["abc", "123", "", "foobar"];
 
         assert_eq!(expected, parse_test_input(input));
+    }
+
+    #[rstest]
+    #[case(1, "0.001μs")]
+    #[case(1000, "1.000μs")]
+    #[case(1234, "1.234μs")]
+    #[case(123456, "123.456μs")]
+    #[case(1234567, "1.235ms")]
+    #[case(12345678, "12.346ms")]
+    fn test_format_duration(#[case] nanos: u128, #[case] expected: &str) {
+        assert_eq!(format_duration(nanos), expected);
     }
 }

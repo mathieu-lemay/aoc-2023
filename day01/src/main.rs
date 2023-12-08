@@ -1,16 +1,7 @@
 use std::fmt::Display;
 use std::time::Instant;
 
-use aoc_common::get_input;
-
-fn solve(input: &[String]) -> (impl Display, impl Display) {
-    let numbers = extract_first_and_last_digits(input, false);
-    let p1 = get_calibration_value(&numbers);
-    let numbers = extract_first_and_last_digits(input, true);
-    let p2 = get_calibration_value(&numbers);
-
-    (p1, p2)
-}
+use aoc_common::{format_duration, get_input};
 
 fn main() {
     let input = get_input("day01.txt");
@@ -19,11 +10,20 @@ fn main() {
 
     let (r1, r2) = solve(input.as_slice());
 
-    let t = start.elapsed().as_nanos() as f64 / 1000.0;
+    let t = start.elapsed().as_nanos();
 
     println!("Part 1: {}", r1);
     println!("Part 2: {}", r2);
-    println!("Duration: {:.3}μs", t);
+    println!("Duration: {}", format_duration(t));
+}
+
+fn solve(input: &[String]) -> (impl Display, impl Display) {
+    let numbers = extract_first_and_last_digits(input, false);
+    let p1 = get_calibration_value(&numbers);
+    let numbers = extract_first_and_last_digits(input, true);
+    let p2 = get_calibration_value(&numbers);
+
+    (p1, p2)
 }
 
 fn extract_first_and_last_digits(input: &[String], include_spelled_out: bool) -> Vec<(u32, u32)> {

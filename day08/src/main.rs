@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::fmt::Display;
 use std::time::Instant;
 
-use aoc_common::get_input;
+use aoc_common::{format_duration, get_input};
 
 fn main() {
     let input = get_input("day08.txt");
@@ -12,11 +12,11 @@ fn main() {
 
     let (r1, r2) = solve(input.as_slice());
 
-    let t = start.elapsed().as_micros() as f64 / 1000.0;
+    let t = start.elapsed().as_nanos();
 
     println!("Part 1: {}", r1);
     println!("Part 2: {}", r2);
-    println!("Duration: {:.3}ms", t);
+    println!("Duration: {}", format_duration(t));
 }
 
 fn solve(input: &[String]) -> (impl Display, impl Display) {
@@ -81,13 +81,18 @@ fn follow_map_parallel(map: &NetworkMap) -> u64 {
     let nodes: HashMap<&str, &Node> =
         HashMap::from_iter(map.nodes.iter().map(|n| (n.name.as_str(), n)));
 
-    let has_reached_end = |n: &Node| { n.name.ends_with('Z') };
+    let has_reached_end = |n: &Node| n.name.ends_with('Z');
 
     map.nodes
         .iter()
         .filter_map(|n| {
             if n.name.ends_with('A') {
-                Some(get_steps_to_end(n, &map.directions, &nodes, has_reached_end))
+                Some(get_steps_to_end(
+                    n,
+                    &map.directions,
+                    &nodes,
+                    has_reached_end,
+                ))
             } else {
                 None
             }

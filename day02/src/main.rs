@@ -2,16 +2,7 @@ use itertools::Itertools;
 use std::fmt::Display;
 use std::time::Instant;
 
-use aoc_common::get_input;
-
-fn solve(input: &[String]) -> (impl Display, impl Display) {
-    let games = parse_games(input);
-
-    let p1: u32 = get_possible_games(&games, 12, 13, 14).iter().sum();
-    let p2: u32 = get_power_of_sets(&games).iter().sum();
-
-    (p1, p2)
-}
+use aoc_common::{format_duration, get_input};
 
 fn main() {
     let input = get_input("day02.txt");
@@ -20,11 +11,20 @@ fn main() {
 
     let (r1, r2) = solve(input.as_slice());
 
-    let t = start.elapsed().as_nanos() as f64 / 1000.0;
+    let t = start.elapsed().as_nanos();
 
     println!("Part 1: {}", r1);
     println!("Part 2: {}", r2);
-    println!("Duration: {:.3}μs", t);
+    println!("Duration: {}", format_duration(t));
+}
+
+fn solve(input: &[String]) -> (impl Display, impl Display) {
+    let games = parse_games(input);
+
+    let p1: u32 = get_possible_games(&games, 12, 13, 14).iter().sum();
+    let p2: u32 = get_power_of_sets(&games).iter().sum();
+
+    (p1, p2)
 }
 
 #[derive(Debug, Eq, PartialEq)]

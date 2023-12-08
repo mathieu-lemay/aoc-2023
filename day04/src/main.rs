@@ -2,7 +2,7 @@ use std::collections::HashSet;
 use std::fmt::Display;
 use std::time::Instant;
 
-use aoc_common::get_input;
+use aoc_common::{format_duration, get_input};
 use itertools::Itertools;
 
 fn main() {
@@ -12,11 +12,11 @@ fn main() {
 
     let (r1, r2) = solve(input.as_slice());
 
-    let t = start.elapsed().as_nanos() as f64 / 1000.0;
+    let t = start.elapsed().as_nanos();
 
     println!("Part 1: {}", r1);
     println!("Part 2: {}", r2);
-    println!("Duration: {:.3}μs", t);
+    println!("Duration: {}", format_duration(t));
 }
 
 fn solve(input: &[String]) -> (impl Display, impl Display) {

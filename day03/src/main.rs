@@ -2,17 +2,8 @@ use itertools::Itertools;
 use std::fmt::Display;
 use std::time::Instant;
 
-use aoc_common::{get_input, Point};
+use aoc_common::{format_duration, get_input, Point};
 use regex::Regex;
-
-fn solve(input: &[String]) -> (impl Display, impl Display) {
-    let board = parse_board(input);
-
-    let p1 = board.get_sum_of_valid_parts();
-    let p2 = board.get_sum_of_gear_ratios();
-
-    (p1, p2)
-}
 
 fn main() {
     let input = get_input("day03.txt");
@@ -21,11 +12,20 @@ fn main() {
 
     let (r1, r2) = solve(input.as_slice());
 
-    let t = start.elapsed().as_micros() as f64 / 1000.0;
+    let t = start.elapsed().as_nanos();
 
     println!("Part 1: {}", r1);
     println!("Part 2: {}", r2);
-    println!("Duration: {:.3}ms", t);
+    println!("Duration: {}", format_duration(t));
+}
+
+fn solve(input: &[String]) -> (impl Display, impl Display) {
+    let board = parse_board(input);
+
+    let p1 = board.get_sum_of_valid_parts();
+    let p2 = board.get_sum_of_gear_ratios();
+
+    (p1, p2)
 }
 
 #[derive(Debug, Eq, PartialEq)]
