@@ -30,5 +30,5 @@ prepare day='':
     if [ -n "{{ day }}" ]; then \
         printf "%02d" "{{ day }}"; \
     else \
-        printf "%02d" "$(date "+%d")"; \
+        date "+%d"; \
     fi
