@@ -1,4 +1,5 @@
 set dotenv-load := true
+export RUST_MIN_STACK := "8388608"
 
 run day='':
     cargo run --bin "day$(just _day {{ day }})"
