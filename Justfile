@@ -1,5 +1,4 @@
 set dotenv-load := true
-export RUST_MIN_STACK := "8388608"
 
 run day='':
     cargo run --bin "day$(just _day {{ day }})"
@@ -9,6 +8,9 @@ bench day='':
 
 test day='':
     RUST_BACKTRACE=1 cargo test --bin "day$(just _day {{ day }})"
+
+expensive-tests day='':
+    RUST_BACKTRACE=1 RUST_MIN_STACK=8388608 cargo test --bin "day$(just _day {{ day }})" -- --ignored
 
 watch day='':
     cargo watch -s "cargo test --bin \"day$(just _day {{ day }})\""

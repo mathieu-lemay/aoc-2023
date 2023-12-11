@@ -347,6 +347,7 @@ mod tests {
         assert_eq!(res, 8);
     }
 
+    #[ignore] // Requires bigger stack
     #[rstest]
     fn test_p1_full_input(puzzle_input: Vec<String>) {
         let map = parse_map(&puzzle_input);
@@ -376,6 +377,7 @@ mod tests {
         assert_eq!(get_tiles_in_loop(&map), 10);
     }
 
+    #[ignore] // Requires bigger stack and is quite slow
     #[rstest]
     fn test_p2_full_input(puzzle_input: Vec<String>) {
         let map = parse_map(&puzzle_input);
