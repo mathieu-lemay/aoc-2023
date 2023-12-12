@@ -133,6 +133,7 @@ fn is_walkable(current: Tile, target: Tile, direction: Direction) -> bool {
         return false;
     }
 
+    #[allow(clippy::match_like_matches_macro)]
     match (current, direction, target) {
         (Tile::PipeNS, Direction::Up, Tile::PipeNS) => true,
         (Tile::PipeNS, Direction::Up, Tile::PipeSE) => true,
