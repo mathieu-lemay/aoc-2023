@@ -25,7 +25,7 @@ pub fn get_input_as_string(filename: &str) -> String {
         Err(error) => panic!("Unable to open file {}: {}", filename, error),
     };
 
-    reader.parse().unwrap()
+    reader.trim().parse().unwrap()
 }
 
 pub fn get_input_as_int<T: Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Ord + FromStr>(
@@ -59,6 +59,13 @@ pub fn parse_test_input(input: &str) -> Vec<String> {
         .split('\n')
         .map(String::from)
         .collect_vec()
+}
+
+/// Parse a puzzle's input data provided as a multi line string. The input is dedented first, then
+/// the first and last lines are removed if they are empty.
+/// This is useful for providing test input as a string.
+pub fn parse_test_input_as_string(input: &str) -> String {
+    dedent(input).trim().to_owned()
 }
 
 #[derive(Debug, Copy, Clone, Hash, Eq, PartialEq)]
@@ -120,6 +127,42 @@ foobar";
         let expected = vec!["abc", "123", "", "foobar"];
 
         assert_eq!(expected, parse_test_input(input));
+    }
+
+    #[rstest]
+    fn test_parse_input_as_string() {
+        let input = "abc
+123
+foobar";
+
+        let expected = "abc\n123\nfoobar".to_string();
+        assert_eq!(expected, parse_test_input_as_string(input));
+    }
+
+    #[rstest]
+    fn test_parse_input_as_string_dedents_input() {
+        let input = "
+            abc
+            123
+            foobar
+        ";
+
+        let expected = "abc\n123\nfoobar".to_string();
+        assert_eq!(expected, parse_test_input_as_string(input));
+    }
+
+    #[rstest]
+    fn test_parse_input_as_string_removes_empty_lines_at_start_and_end() {
+        let input = "
+
+            abc
+            123
+
+            foobar
+        ";
+
+        let expected = "abc\n123\n\nfoobar".to_string();
+        assert_eq!(expected, parse_test_input_as_string(input));
     }
 
     #[rstest]
