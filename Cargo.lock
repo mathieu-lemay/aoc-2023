@@ -290,7 +290,10 @@ name = "day18"
 version = "0.1.0"
 dependencies = [
  "aoc-common",
+ "geo",
+ "inpt",
  "itertools 0.12.0",
+ "regex",
  "rstest",
 ]
 
